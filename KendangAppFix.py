@@ -602,7 +602,7 @@ if __name__ == "__main__":
 
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    file = open('Adaptic.qss', 'r')
+    file = open('theme/Adaptic.qss', 'r')
     with file:
         qss = file.read()
         app.setStyleSheet(qss)
