@@ -18,6 +18,7 @@ from dataTestFeatureDataFrame import DataTestMaker
 import Backpropagation
 from MLSA import mlsa
 from PyQt5 import QtCore, QtGui, QtWidgets, QtMultimedia
+from qt_material import apply_stylesheet
 import logging
 log = logging
 
@@ -67,8 +68,8 @@ class MakeWav(QtCore.QThread):
                 # print(start, end)
                 counter = threshold
                 chunk = audio[start:end]
-                filename = 'split_audio/{}-potongan-{}.wav'.format(index, counter)
-                chunk.export(filename, format="wav")
+                temporary_segment = 'split_audio/{}-potongan-{}.wav'.format(index, counter)
+                chunk.export(temporary_segment, format="wav")
                 start = end
                 index += 1
                 time.sleep(.5)
@@ -407,6 +408,7 @@ class Ui_MainWindow(object):
         else:
            try:
                y, sr = librosa.load(filename)
+               print("y = {}, sr = {}, filename={}".format(y, sr, filename))
                mlsa(y, sr)
                self.onset_image_container.setPixmap(QtGui.QPixmap("figure/synthesized_audio.png"))
                self.play_btn.setEnabled(True)
@@ -600,6 +602,12 @@ if __name__ == "__main__":
 
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
+    file = open('Adaptic.qss', 'r')
+    with file:
+        qss = file.read()
+        app.setStyleSheet(qss)
+    # apply_stylesheet(app, theme='dark_amber.xml')
+
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
