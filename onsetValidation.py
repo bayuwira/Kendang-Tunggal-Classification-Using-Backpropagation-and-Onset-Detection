@@ -11,12 +11,14 @@ from PyQt5.QtCore import QThread, pyqtSignal
 def onsetDetection(x, sr, hop_length):
     onset_frames = onset_detect(x, sr=sr, hop_length=hop_length, backtrack=True)
     onset_times_backtrack = librosa.frames_to_time(onset_frames, sr=sr, hop_length=hop_length)
-    return onset_times_backtrack
+    onset_sample = librosa.frames_to_samples(onset_frames, hop_length=hop_length)
+    return onset_times_backtrack, onset_sample
 
 def onsetDetectionNonNormalize(x, sr, hop_length):
     onset_frames = onset_detect_non_normalize(x, sr=sr, hop_length=hop_length, backtrack=True)
     onset_times_backtrack = librosa.frames_to_time(onset_frames, sr=sr, hop_length=hop_length)
-    return onset_times_backtrack
+    onset_sample = librosa.frames_to_samples(onset_frames, hop_length=hop_length)
+    return onset_times_backtrack, onset_sample
 
 def plotingWave(x, sr, filename, hop_size, onset_times_backtrack, normalize = False):
     plt.figure(figsize=(14, 5))

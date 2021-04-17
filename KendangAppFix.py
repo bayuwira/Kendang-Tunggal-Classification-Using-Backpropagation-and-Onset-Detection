@@ -16,10 +16,11 @@ from onsetValidation import onsetDetection, onsetDetectionNonNormalize, \
 from dataTrainFeatureDataFrame import DataTrainMaker
 from dataTestFeatureDataFrame import DataTestMaker
 import Backpropagation
-from MLSA import mlsa
+from MLSA import mlsa, synthesis_wav
 from PyQt5 import QtCore, QtGui, QtWidgets, QtMultimedia
 from qt_material import apply_stylesheet
 import logging
+
 log = logging
 
 # variable global
@@ -33,6 +34,9 @@ n_lrate = 0
 n_hidden = 0
 k_fold = ""
 progress_bar = 0
+onset_sample = np.array([])
+class_predict = list()
+
 
 class MakeWav(QtCore.QThread):
     countChanged = QtCore.pyqtSignal(int)
@@ -86,7 +90,7 @@ class BackpropagationNN(QtCore.QThread):
         dataset = Backpropagation.load_csv(filename)
         for i in range(len(dataset[0]) - 1):
             Backpropagation.str_column_to_float(dataset, i)
-        #convert class column to integers
+        # convert class column to integers
         Backpropagation.str_column_to_int(dataset, len(dataset[0]) - 1)
         n_inputs = len(dataset[0]) - 1
         n_outputs = len(set([row[-1] for row in dataset]))
@@ -106,9 +110,9 @@ class BackpropagationNN(QtCore.QThread):
             count += 1
             progress_bar = int(count / n_epoch * 100)
             self.countChanged.emit(int(count / n_epoch * 100))
-            print("=> epoch = %d, error= %.5f" % (epoch, mse))
+            print("=> epoch = %d, lrate = %.2f, error= %.5f" % (epoch, n_lrate, mse))
 
-        print("network sesudah",network)
+        print("network sesudah", network)
 
 
 class Ui_MainWindow(object):
@@ -398,7 +402,7 @@ class Ui_MainWindow(object):
         self.player.play()
 
     def sintesis_audio(self):
-        global filename
+        global filename, onset_sample, class_predict
         if (not filename):
             msg = QtWidgets.QMessageBox()
             msg.setWindowTitle("null variable")
@@ -406,23 +410,23 @@ class Ui_MainWindow(object):
             msg.setIcon(QtWidgets.QMessageBox.Warning)
             msg.exec_()
         else:
-           try:
-               y, sr = librosa.load(filename)
-               print("y = {}, sr = {}, filename={}".format(y, sr, filename))
-               mlsa(y, sr)
-               self.onset_image_container.setPixmap(QtGui.QPixmap("figure/synthesized_audio.png"))
-               self.play_btn.setEnabled(True)
-           except:
-               log.exception("error detected")
+            try:
+                y, sr = librosa.load(filename)
+                print("y = {}, sr = {}, filename={}".format(y, sr, filename))
+                synthesis_wav(y, sr, onset_sample, class_predict)
+                self.onset_image_container.setPixmap(QtGui.QPixmap("figure/synthesized_audio.png"))
+                self.play_btn.setEnabled(True)
+            except:
+                log.exception("error detected")
 
     def predict_notes(self):
         self.predict_notes_label.clear()
-        global predicted_notes
+        global predicted_notes, class_predict
         filename_test = 'data_test.csv'
         dataset_test = Backpropagation.load_csv(filename_test)
         for i in range(len(dataset_test[0]) - 1):
             Backpropagation.str_column_to_float(dataset_test, i)
-            
+
         # convert class column to integers
         Backpropagation.str_column_to_int(dataset_test, len(dataset_test[0]) - 1)
         with open('weight_train.pkl', 'rb') as picklefile:
@@ -445,7 +449,8 @@ class Ui_MainWindow(object):
                 predicted_notes.append('u')
             else:
                 predicted_notes.append('t')
-
+        print(answer)
+        class_predict = answer
         for note in predicted_notes:
             notes += note + ' . '
         self.predict_notes_label.setText(notes)
@@ -480,7 +485,7 @@ class Ui_MainWindow(object):
         filename = path[0]
 
     def get_onset(self):
-        global filename, normalization, onset_times_backtrack
+        global filename, normalization, onset_times_backtrack, onset_sample
         hop_size = self.hop_size_input.text()
         if (not hop_size or not filename):
             msg = QtWidgets.QMessageBox()
@@ -492,13 +497,14 @@ class Ui_MainWindow(object):
             x, sr = librosa.load(filename)
             hop_size = int(hop_size)
             if (normalization):
-                onset_times_backtrack = onsetDetection(x, sr, hop_size)
+                onset_times_backtrack, onset_sample = onsetDetection(x, sr, hop_size)
             else:
-                onset_times_backtrack = onsetDetectionNonNormalize(x, sr, hop_size)
+                onset_times_backtrack, onset_sample = onsetDetectionNonNormalize(x, sr, hop_size)
             plotingWave(x, sr, filename, hop_size, onset_times_backtrack, normalize=normalization)
             self.onset_image_container.setPixmap(QtGui.QPixmap("figure/onset.png"))
             self.split_notes_btn.setEnabled(True)
             self.data_test_pg.setProperty("value", 0)
+        print("onset_sample {}, panjang {}".format(onset_sample, len(onset_sample)))
 
     def split_notes(self):
         self.calc = MakeWav()

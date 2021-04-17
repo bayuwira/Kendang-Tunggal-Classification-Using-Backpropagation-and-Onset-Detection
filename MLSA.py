@@ -11,6 +11,36 @@ from pysptk.synthesis import MLSADF, Synthesizer
 import soundfile as sf
 import os
 
+def synthesis_wav(y, sr, onset_sample, class_predict):
+    try:
+        os.remove('audio_sintetik/synthesized_audio.wav')
+    except:
+        pass
+
+    sample_length = len(y)
+    file_sintesis = glob.glob('asset/sample_tones/*')
+    database_tones = []
+    for data in file_sintesis:
+        y, sr = librosa.load(data)
+        database_tones.append(y)
+
+    synth_container = np.zeros((sample_length + (44100)))
+    index = 0
+    for onset in class_predict:
+        segment = onset - 1
+        c_sample = 0
+        for sample in database_tones[segment]:
+            synth_container[onset_sample[index] + c_sample] += sample
+            c_sample += 1
+        print("segment : {}, onset_samples : {}, ".format(segment, onset_sample[index]))
+        index += 1
+
+    plt.figure(figsize=(14, 5))
+    librosa.display.waveplot(y=synth_container, sr=sr)
+    plt.title('Plot audio yang di sintesis')
+    plt.savefig('figure/synthesized_audio.png')
+    sf.write('audio_sintetik/synthesized_audio.wav', synth_container, sr, subtype='PCM_24')
+
 def mlsa(x, sr):
     os.remove('audio_sintetik/synthesized_audio.wav')
 
