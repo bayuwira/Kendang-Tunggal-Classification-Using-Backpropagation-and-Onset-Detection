@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>KendangApp</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>icon/kendang.png</normaloff>icon/kendang.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
