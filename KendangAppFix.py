@@ -11,14 +11,13 @@
 import pickle
 import librosa, os, time, numpy as np, glob
 from pydub import AudioSegment
-from onsetValidation import onsetDetection, onsetDetectionNonNormalize, \
+from function.onsetValidation import onsetDetection, onsetDetectionNonNormalize, \
     plotingWave, convertTimesToSecond
-from dataTrainFeatureDataFrame import DataTrainMaker
-from dataTestFeatureDataFrame import DataTestMaker
-import Backpropagation
-from MLSA import mlsa, synthesis_wav
+from function.dataTrainFeatureDataFrame import DataTrainMaker
+from function.dataTestFeatureDataFrame import DataTestMaker
+from function import Backpropagation
+from function.MLSA import synthesis_wav
 from PyQt5 import QtCore, QtGui, QtWidgets, QtMultimedia
-from qt_material import apply_stylesheet
 import logging
 
 log = logging

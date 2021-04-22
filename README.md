@@ -37,10 +37,14 @@ scikit-learn==0.23.2
 natsort==7.1.1
 tqdm==4.51.0
 ```
-## How To Use 😜
-Really? Do you ask how to use this? Just Kidding, the main function is on `[KendangAppFix.py](https://github.com/bayuwira/Kendang-Tunggal-Classification-Using-Backpropagation-and-Onset-Detection/blob/master/KendangAppFix.py), just run it, and you will see the beautiful GUI using [pyqt5](https://pypi.org/project/PyQt5/) like this :
+## How To Use 🥱
+Really? Do you ask how to use this? Just Kidding, the main function is on `[Main.py](https://github.com/bayuwira/Kendang-Tunggal-Classification-Using-Backpropagation-and-Onset-Detection/blob/master/KendangAppFix.py), just run it, and you will see the beautiful GUI using [pyqt5](https://pypi.org/project/PyQt5/) like this :
  
-![Onset Detection Tab](asset/Picture1.png)
+![Onset Detection Tab](asset/Screenshot_12.png)
+##
+![Classification Tab](asset/Screenshot_1.png)
+##
+![Feature Extraction](asset/Screenshot_2.png)
 
 Select the audio dataset file at [dataset validation folder](https://github.com/bayuwira/Kendang-Tunggal-Classification-Using-Backpropagation-and-Onset-Detection/tree/master/dataset/data_val) and click the `get onset` button and ride it! 
 
