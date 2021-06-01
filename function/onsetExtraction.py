@@ -7,7 +7,8 @@ from librosa.util.exceptions import ParameterError
 from librosa.feature.spectral import melspectrogram
 import pandas as pd
 
-__all__ = ["onset_detect", "onset_detect_non_normalize", "onset_strength", "onset_strength_multi", "onset_backtrack"]
+__all__ = ["onset_detect", "onset_detect_non_normalize",
+           "onset_strength", "onset_strength_multi", "onset_backtrack"]
 
 
 def onset_detect(
@@ -20,7 +21,6 @@ def onset_detect(
     units="frames",
     **kwargs,
 ):
-
 
     # First, get the frame->beat strength profile if we don't already have one
     if onset_envelope is None:
@@ -38,7 +38,9 @@ def onset_detect(
         return np.array([], dtype=np.int)
 
     # Normalize onset strength function to [0, 1] range
-    onset_envelope /= onset_envelope.max()
+    # onset_envelope /= onset_envelope.max()
+    onset_envelope = ((onset_envelope - onset_envelope.min()) /
+                      (onset_envelope.max() - onset_envelope.min()))
     data = pd.DataFrame(onset_envelope)
     data.to_csv("mel_normalisasi.csv")
     # These parameter settings found by large-scale search
@@ -70,6 +72,7 @@ def onset_detect(
 
     return onsets
 
+
 def onset_detect_non_normalize(
         y=None,
         sr=22050,
@@ -88,15 +91,10 @@ def onset_detect_non_normalize(
         onset_envelope = onset_strength(y=y, sr=sr, hop_length=hop_length)
     data = pd.DataFrame(onset_envelope)
     data.to_csv("mel_tanpa_normalisasi.csv")
-    # Shift onset envelope up to be non-negative
-    # (a common normalization step to make the threshold more consistent)
-    # onset_envelope -= onset_envelope.min()
 
     # Do we have any onsets to grab?
     if not onset_envelope.any():
         return np.array([], dtype=np.int)
-    # Normalize onset strength function to [0, 1] range
-    # onset_envelope /= onset_envelope.max()
 
     # These parameter settings found by large-scale search
     kwargs.setdefault("pre_max", 0.03 * sr // hop_length)  # 30ms
@@ -167,7 +165,8 @@ def onset_strength(
 
 def onset_backtrack(events, energy):
 
-    minima = np.flatnonzero((energy[1:-1] <= energy[:-2]) & (energy[1:-1] < energy[2:]))
+    minima = np.flatnonzero(
+        (energy[1:-1] <= energy[:-2]) & (energy[1:-1] < energy[2:]))
 
     # Pad on a 0, just in case we have onsets with no preceding minimum
     # Shift by one to account for slicing in minima detection
@@ -210,7 +209,8 @@ def onset_strength_multi(
 
     # First, compute mel spectrogram
     if S is None:
-        S = np.abs(feature(y=y, sr=sr, n_fft=n_fft, hop_length=hop_length, **kwargs))
+        S = np.abs(feature(y=y, sr=sr, n_fft=n_fft,
+                           hop_length=hop_length, **kwargs))
 
         # Convert to dBs
         S = core.power_to_db(S)
@@ -247,7 +247,8 @@ def onset_strength_multi(
         pad = False
 
     if aggregate:
-        onset_env = util.sync(onset_env, channels, aggregate=aggregate, pad=pad, axis=0)
+        onset_env = util.sync(onset_env, channels,
+                              aggregate=aggregate, pad=pad, axis=0)
 
     # compensate for lag
     pad_width = lag
@@ -255,15 +256,16 @@ def onset_strength_multi(
         # Counter-act framing effects. Shift the onsets by n_fft / hop_length
         pad_width += n_fft // (2 * hop_length)
 
-    onset_env = np.pad(onset_env, ([0, 0], [int(pad_width), 0]), mode="constant")
+    onset_env = np.pad(
+        onset_env, ([0, 0], [int(pad_width), 0]), mode="constant")
 
     # remove the DC component
     if detrend:
-        onset_env = scipy.signal.lfilter([1.0, -1.0], [1.0, -0.99], onset_env, axis=-1)
+        onset_env = scipy.signal.lfilter(
+            [1.0, -1.0], [1.0, -0.99], onset_env, axis=-1)
 
     # Trim to match the input duration
     if center:
         onset_env = onset_env[:, : S.shape[1]]
 
     return onset_env
-

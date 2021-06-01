@@ -13,10 +13,9 @@ import os
 
 def synthesis_wav(y, sr, onset_sample, class_predict):
     try:
-        os.remove('../audio_sintetik/synthesized_audio.wav')
+        os.remove('audio_sintetik/synthesized_audio.wav')
     except:
         pass
-
     sample_length = len(y)
     file_sintesis = glob.glob('asset/sample_tones/*')
     database_tones = []
@@ -24,7 +23,7 @@ def synthesis_wav(y, sr, onset_sample, class_predict):
         y, sr = librosa.load(data)
         database_tones.append(y)
 
-    synth_container = np.zeros((sample_length + (44100)))
+    synth_container = np.zeros((sample_length + 20000))
     index = 0
     for onset in class_predict:
         segment = onset - 1
@@ -39,7 +38,8 @@ def synthesis_wav(y, sr, onset_sample, class_predict):
     librosa.display.waveplot(y=synth_container, sr=sr)
     plt.title('Plot audio yang di sintesis')
     plt.savefig('figure/synthesized_audio.png')
-    sf.write('../audio_sintetik/synthesized_audio.wav', synth_container, sr, subtype='PCM_24')
+    sf.write('audio_sintetik/synthesized_audio.wav', synth_container, sr, subtype='PCM_24')
+    print("berhasil membuat audio")
 
 def mlsa(x, sr):
     os.remove('../audio_sintetik/synthesized_audio.wav')

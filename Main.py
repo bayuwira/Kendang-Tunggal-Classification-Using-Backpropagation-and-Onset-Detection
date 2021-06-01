@@ -37,6 +37,7 @@ onset_sample = np.array([])
 onset_times = np.array([])
 class_predict = list()
 
+
 class MakeWav(QtCore.QThread):
     countChanged = QtCore.pyqtSignal(int)
 
@@ -112,6 +113,7 @@ class BackpropagationNN(QtCore.QThread):
             print("=> epoch = %d, lrate = %.2f, error= %.5f" % (epoch, n_lrate, mse))
 
         print("network sesudah", network)
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -241,7 +243,7 @@ class Ui_MainWindow(object):
         self.predict_notes_label.setFrameShape(QtWidgets.QFrame.Box)
         self.predict_notes_label.setFrameShadow(QtWidgets.QFrame.Raised)
         self.predict_notes_label.setTextFormat(QtCore.Qt.AutoText)
-        self.predict_notes_label.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        self.predict_notes_label.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
         self.predict_notes_label.setWordWrap(True)
         self.predict_notes_label.setIndent(-1)
         self.predict_notes_label.setObjectName("predict_notes_label")
@@ -309,7 +311,7 @@ class Ui_MainWindow(object):
         self.data_test_pg.setObjectName("data_test_pg")
         self.onset_filename_label = QtWidgets.QLineEdit(self.tab)
         self.onset_filename_label.setGeometry(QtCore.QRect(49, 20, 861, 31))
-        self.onset_filename_label.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        self.onset_filename_label.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
         self.onset_filename_label.setReadOnly(True)
         self.onset_filename_label.setObjectName("onset_filename_label")
         self.onset_filename_label.setFont(font)
@@ -628,7 +630,8 @@ class Ui_MainWindow(object):
     def open_file_dialog(self):
         global filename
         self.openFileNamesDialog()
-        self.onset_filename_label.setText(filename)
+        display_filename = filename.split("/")[-1]
+        self.onset_filename_label.setText(display_filename)
         if (filename):
             self.actionPlay_File.setEnabled(True)
 
@@ -661,7 +664,7 @@ class Ui_MainWindow(object):
         print("onset_sample {}, panjang {}".format(onset_sample, len(onset_sample)))
 
     def split_notes(self):
-        try :
+        try:
             self.calc = MakeWav()
             self.calc.countChanged.connect(self.countSplitNotes)
             self.calc.start()
@@ -775,6 +778,7 @@ class Ui_MainWindow(object):
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     file = open('theme/Ubuntu.qss', 'r')

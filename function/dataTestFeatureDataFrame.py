@@ -3,7 +3,7 @@ from function import featureExtraction
 import glob
 import librosa
 import soundfile as sf
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from PyQt5.QtCore import QThread, pyqtSignal
 import logging
 log = logging
